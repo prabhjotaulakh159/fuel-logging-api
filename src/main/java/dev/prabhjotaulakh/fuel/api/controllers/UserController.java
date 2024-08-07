@@ -1,6 +1,7 @@
 package dev.prabhjotaulakh.fuel.api.controllers;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,5 +33,11 @@ public class UserController {
         var user = userService.authenticateUser(authRequest.getUsername(), authRequest.getPassword());
         var tokenStr = tokenService.generateToken(user); 
         return ResponseEntity.ok().body(new TokenResponse(tokenStr));
+    }
+
+    @DeleteMapping("/private/user/delete")
+    public ResponseEntity<Void> deleteUser(@RequestBody @Valid AuthRequest authRequest) {
+        userService.deleteUser(authRequest.getUsername(), authRequest.getPassword());
+        return ResponseEntity.ok().build();
     }
 }

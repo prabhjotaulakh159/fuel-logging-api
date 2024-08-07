@@ -11,6 +11,7 @@ import dev.prabhjotaulakh.fuel.api.exceptions.DuplicateCredentialsException;
 import dev.prabhjotaulakh.fuel.api.exceptions.UserAlreadyExistsException;
 import dev.prabhjotaulakh.fuel.api.models.User;
 import dev.prabhjotaulakh.fuel.api.repositories.UserRepository;
+import jakarta.transaction.Transactional;
 
 @Service
 public class UserService {
@@ -42,5 +43,11 @@ public class UserService {
         var auth = authenticationManager.authenticate(maybeGoodCreds);
 
         return userRepository.findByUsername(auth.getName()).get();
+    }
+
+    @Transactional
+    public void deleteUser(String username, String password) {
+        var authenticatedUser = authenticateUser(username, password);
+        userRepository.deleteById(authenticatedUser.getUserId());
     }
 }
