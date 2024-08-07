@@ -50,4 +50,13 @@ public class UserService {
         var authenticatedUser = authenticateUser(username, password);
         userRepository.deleteById(authenticatedUser.getUserId());
     }
+
+    @Transactional
+    public void changePassword(String username, String password, String newPassword) {
+        if (username.equals(newPassword) || password.equals(newPassword)) {
+            throw new DuplicateCredentialsException("New password must be different from old password and username");
+        }
+        var authenticatedUser = authenticateUser(username, password); // authenticate with old password
+        authenticatedUser.setPassword(bCryptPasswordEncoder.encode(newPassword)); // encrypt new password
+    }
 }
