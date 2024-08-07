@@ -2,6 +2,8 @@ package dev.prabhjotaulakh.fuel.api.services;
 
 import java.util.ArrayList;
 
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,10 +16,13 @@ import dev.prabhjotaulakh.fuel.api.repositories.UserRepository;
 public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final AuthenticationManager authenticationManager;
 
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, 
+            AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.authenticationManager = authenticationManager;
     }
 
     public int addUserToDatabase(String username, String password) {
@@ -32,5 +37,12 @@ public class UserService {
         userRepository.save(user);
         
         return user.getUserId();
+    }
+
+    public String authenticateUser(String username, String password) {
+        var maybeGoodCreds = new UsernamePasswordAuthenticationToken(username, password);
+        var auth = authenticationManager.authenticate(maybeGoodCreds);
+
+        return auth.getName();
     }
 }
