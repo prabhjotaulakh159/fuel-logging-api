@@ -25,7 +25,7 @@ public class UserService {
         this.authenticationManager = authenticationManager;
     }
 
-    public int addUserToDatabase(String username, String password) {
+    public void addUserToDatabase(String username, String password) {
         if (username.equals(password)) throw new DuplicateCredentialsException();
         if (userRepository.existsByUsername(username)) throw new UserAlreadyExistsException(username);
         
@@ -35,14 +35,12 @@ public class UserService {
         user.setSheets(new ArrayList<>());
         
         userRepository.save(user);
-        
-        return user.getUserId();
     }
 
-    public String authenticateUser(String username, String password) {
+    public User authenticateUser(String username, String password) {
         var maybeGoodCreds = new UsernamePasswordAuthenticationToken(username, password);
         var auth = authenticationManager.authenticate(maybeGoodCreds);
 
-        return auth.getName();
+        return userRepository.findByUsername(auth.getName()).get();
     }
 }

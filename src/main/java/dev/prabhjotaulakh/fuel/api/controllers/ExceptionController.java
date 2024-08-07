@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import dev.prabhjotaulakh.fuel.api.data.ErrorResponse;
 import dev.prabhjotaulakh.fuel.api.data.ValidationErrorResponse;
 import dev.prabhjotaulakh.fuel.api.exceptions.DuplicateCredentialsException;
+import dev.prabhjotaulakh.fuel.api.exceptions.JwtException;
 import dev.prabhjotaulakh.fuel.api.exceptions.UserAlreadyExistsException;
 
 @RestControllerAdvice
@@ -51,6 +52,12 @@ public class ExceptionController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponse> handleAuthException(AuthenticationException e) {
         return badRequest(e.getMessage());
+    }
+
+    @ExceptionHandler(JwtException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<ErrorResponse> handleJwtException(JwtException e) {
+        return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value(), LocalDateTime.now()));
     }
 
     private ResponseEntity<ErrorResponse> badRequest(String message) {
