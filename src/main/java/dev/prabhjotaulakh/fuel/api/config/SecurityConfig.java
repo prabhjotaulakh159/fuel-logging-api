@@ -13,6 +13,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
 import dev.prabhjotaulakh.fuel.api.services.UserDetailsServiceImpl;
@@ -39,7 +40,10 @@ public class SecurityConfig {
                                                .authenticated())
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder())))
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {
+                jwt.decoder(jwtDecoder());
+                jwt.jwtAuthenticationConverter(jwtAuthenticationConverter());
+            }))
             .exceptionHandling(ex -> ex.authenticationEntryPoint(unauthorizedRequestHandler));
         return http.build();
     }
@@ -62,5 +66,10 @@ public class SecurityConfig {
     public JwtDecoder jwtDecoder() {
         var secretKeySpec = new SecretKeySpec(secretKey.getBytes(), "HmacSHA256");
         return NimbusJwtDecoder.withSecretKey(secretKeySpec).build();
+    }
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        return new JwtAuthenticationConverter();
     }
 }

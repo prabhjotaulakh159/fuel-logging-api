@@ -16,6 +16,7 @@ import dev.prabhjotaulakh.fuel.api.data.ErrorResponse;
 import dev.prabhjotaulakh.fuel.api.data.ValidationErrorResponse;
 import dev.prabhjotaulakh.fuel.api.exceptions.DuplicateCredentialsException;
 import dev.prabhjotaulakh.fuel.api.exceptions.JwtException;
+import dev.prabhjotaulakh.fuel.api.exceptions.SheetAlreadyExistsForUsernameException;
 import dev.prabhjotaulakh.fuel.api.exceptions.UserAlreadyExistsException;
 
 @RestControllerAdvice
@@ -51,6 +52,12 @@ public class ExceptionController {
     @ExceptionHandler(AuthenticationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponse> handleAuthException(AuthenticationException e) {
+        return badRequest(e.getMessage());
+    }
+
+    @ExceptionHandler(SheetAlreadyExistsForUsernameException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ErrorResponse> handleSheetForUsernameException(SheetAlreadyExistsForUsernameException e) {
         return badRequest(e.getMessage());
     }
 
