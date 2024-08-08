@@ -3,6 +3,7 @@ package dev.prabhjotaulakh.fuel.api.controllers;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,5 +37,11 @@ public class SheetController {
     @GetMapping("/private/sheet/all")
     public ResponseEntity<List<SheetResponse>> getAllSheets() {
         return ResponseEntity.ok().body(sheetService.getAllSheets());
+    }
+
+    @DeleteMapping("/private/sheet/delete/{sheetId}")
+    public ResponseEntity<Void> deleteSheetById(@PathVariable Integer sheetId) {
+        sheetService.deleteSheet(sheetId);
+        return ResponseEntity.ok().build();
     }
 }

@@ -92,4 +92,10 @@ public class SheetService {
 
         return sheetResponseList;
     }
+
+    @Transactional
+    public void deleteSheet(Integer sheetId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteSheet'");
+    }
 }
