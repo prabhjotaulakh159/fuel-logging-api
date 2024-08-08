@@ -51,7 +51,7 @@ public class SheetService {
 
         sheetRepository.save(sheet);
 
-        return new SheetResponse(sheet.getSheetId(), sheet.getSheetName(), sheet.getLogs());
+        return new SheetResponse(sheet.getSheetId(), sheet.getSheetName());
     } 
 
     public SheetResponse getSheetById(Integer sheetId) {
@@ -74,8 +74,6 @@ public class SheetService {
         var sheetResponse = new SheetResponse();
         sheetResponse.setSheetId(sheet.get().getSheetId());
         sheetResponse.setSheetName(sheet.get().getSheetName());
-        sheetResponse.setLogs(sheet.get().getLogs());
-
         return sheetResponse;
     }
 
@@ -95,7 +93,20 @@ public class SheetService {
 
     @Transactional
     public void deleteSheet(Integer sheetId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteSheet'");
+        var sheet = sheetRepository.findById(sheetId);
+        if (sheet.isEmpty()) {
+            throw new SheetNotFoundException();
+        }
+
+        var user = userRepository.findByUsername(SecurityService.getCurrentlyLoggedInUsername());
+        if (user.isEmpty()) {
+            throw new UsernameNotFoundException("User not found");
+        }
+
+        if (sheet.get().getUser().getUserId() != user.get().getUserId()) {
+            throw new ResourceNotOwnedByUserException();
+        }
+
+        sheetRepository.deleteById(sheet.get().getSheetId());
     }
 }
