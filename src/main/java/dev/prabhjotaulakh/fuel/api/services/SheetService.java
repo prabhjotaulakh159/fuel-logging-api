@@ -1,7 +1,10 @@
 package dev.prabhjotaulakh.fuel.api.services;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -18,10 +21,13 @@ import jakarta.transaction.Transactional;
 public class SheetService {
     private final SheetRepository sheetRepository;
     private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
 
-    public SheetService(SheetRepository sheetRepository, UserRepository userRepository) {
+    public SheetService(SheetRepository sheetRepository, UserRepository userRepository,
+            ModelMapper modelMapper) {
         this.sheetRepository = sheetRepository;
         this.userRepository = userRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Transactional
@@ -71,5 +77,19 @@ public class SheetService {
         sheetResponse.setLogs(sheet.get().getLogs());
 
         return sheetResponse;
+    }
+
+    public List<SheetResponse> getAllSheets() {
+        var user = userRepository.findByUsername(SecurityService.getCurrentlyLoggedInUsername());
+        if (user.isEmpty()) {
+            throw new UsernameNotFoundException("User not found");
+        }
+
+        var sheets = sheetRepository.getAllSheetsByUserId(user.get().getUserId());
+        var sheetResponseList = sheets.stream()
+            .map(sheet -> modelMapper.map(sheet, SheetResponse.class))
+            .collect(Collectors.toList());
+
+        return sheetResponseList;
     }
 }

@@ -1,5 +1,7 @@
 package dev.prabhjotaulakh.fuel.api.controllers;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,5 +31,10 @@ public class SheetController {
     @GetMapping("/private/sheet/{sheetId}")
     public ResponseEntity<SheetResponse> getSingleSheet(@PathVariable Integer sheetId) {
         return ResponseEntity.ok().body(sheetService.getSheetById(sheetId));
+    }
+
+    @GetMapping("/private/sheet/all")
+    public ResponseEntity<List<SheetResponse>> getAllSheets() {
+        return ResponseEntity.ok().body(sheetService.getAllSheets());
     }
 }
