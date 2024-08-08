@@ -1,7 +1,5 @@
 package dev.prabhjotaulakh.fuel.api.repositories;
 
-import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,6 +9,7 @@ import dev.prabhjotaulakh.fuel.api.models.Sheet;
 
 @Repository
 public interface SheetRepository extends JpaRepository<Sheet, Integer> {
+    // checks if a user already has a sheet with a particular name 
     @Query(value = 
     "SELECT COUNT(*) > 0 " +
     "FROM sheets " +

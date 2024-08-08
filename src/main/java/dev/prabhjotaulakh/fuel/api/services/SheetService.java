@@ -2,15 +2,17 @@ package dev.prabhjotaulakh.fuel.api.services;
 
 import java.util.ArrayList;
 
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import dev.prabhjotaulakh.fuel.api.data.SheetResponse;
+import dev.prabhjotaulakh.fuel.api.exceptions.ResourceNotOwnedByUserException;
 import dev.prabhjotaulakh.fuel.api.exceptions.SheetAlreadyExistsForUsernameException;
+import dev.prabhjotaulakh.fuel.api.exceptions.SheetNotFoundException;
 import dev.prabhjotaulakh.fuel.api.models.Sheet;
 import dev.prabhjotaulakh.fuel.api.repositories.SheetRepository;
 import dev.prabhjotaulakh.fuel.api.repositories.UserRepository;
+import jakarta.transaction.Transactional;
 
 @Service
 public class SheetService {
@@ -22,12 +24,12 @@ public class SheetService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public SheetResponse addSheet(String sheetName) {
-        var authenticatedUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        var maybeAuthenticatedUser = userRepository.findByUsername(authenticatedUsername);
+        var maybeAuthenticatedUser = userRepository.findByUsername(SecurityService.getCurrentlyLoggedInUsername());
 
         if (maybeAuthenticatedUser.isEmpty()) {
-            throw new UsernameNotFoundException("User '" + authenticatedUsername + "' not found");
+            throw new UsernameNotFoundException("User not found");
         }
 
         var user = maybeAuthenticatedUser.get();
@@ -45,4 +47,29 @@ public class SheetService {
 
         return new SheetResponse(sheet.getSheetId(), sheet.getSheetName(), sheet.getLogs());
     } 
+
+    public SheetResponse getSheetById(Integer sheetId) {
+        var user = userRepository.findByUsername(SecurityService.getCurrentlyLoggedInUsername());
+        if (user.isEmpty()) {
+            throw new UsernameNotFoundException("User not found");
+        }
+        
+        var sheet = sheetRepository.findById(sheetId);
+        if (sheet.isEmpty()) {
+            throw new SheetNotFoundException();
+        }
+
+        // basically the sheet should belong to the logged in user 
+        // in order to access it
+        if (sheet.get().getUser().getUserId() != user.get().getUserId()) {
+            throw new ResourceNotOwnedByUserException();
+        }
+
+        var sheetResponse = new SheetResponse();
+        sheetResponse.setSheetId(sheet.get().getSheetId());
+        sheetResponse.setSheetName(sheet.get().getSheetName());
+        sheetResponse.setLogs(sheet.get().getLogs());
+
+        return sheetResponse;
+    }
 }

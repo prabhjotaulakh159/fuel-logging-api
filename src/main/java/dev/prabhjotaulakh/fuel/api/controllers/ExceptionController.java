@@ -16,7 +16,9 @@ import dev.prabhjotaulakh.fuel.api.data.ErrorResponse;
 import dev.prabhjotaulakh.fuel.api.data.ValidationErrorResponse;
 import dev.prabhjotaulakh.fuel.api.exceptions.DuplicateCredentialsException;
 import dev.prabhjotaulakh.fuel.api.exceptions.JwtException;
+import dev.prabhjotaulakh.fuel.api.exceptions.ResourceNotOwnedByUserException;
 import dev.prabhjotaulakh.fuel.api.exceptions.SheetAlreadyExistsForUsernameException;
+import dev.prabhjotaulakh.fuel.api.exceptions.SheetNotFoundException;
 import dev.prabhjotaulakh.fuel.api.exceptions.UserAlreadyExistsException;
 
 @RestControllerAdvice
@@ -61,6 +63,19 @@ public class ExceptionController {
         return badRequest(e.getMessage());
     }
 
+    @ExceptionHandler(ResourceNotOwnedByUserException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<ErrorResponse> handleResourceNotOwned(ResourceNotOwnedByUserException e) {
+        var errorRep = new ErrorResponse(e.getMessage(), HttpStatus.UNAUTHORIZED.value(), LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED.value()).body(errorRep);
+    }
+
+    @ExceptionHandler(SheetNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ErrorResponse> handleSheetNotFound(SheetNotFoundException e) {
+        return notFound(e.getMessage());
+    }
+
     @ExceptionHandler(JwtException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<ErrorResponse> handleJwtException(JwtException e) {
@@ -74,5 +89,14 @@ public class ExceptionController {
         errorResponse.setLocalDateTime(LocalDateTime.now());
         
         return ResponseEntity.badRequest().body(errorResponse);
+    }
+
+    private ResponseEntity<ErrorResponse> notFound(String message) {
+        var errorResponse = new ErrorResponse();
+        errorResponse.setMessage(message);
+        errorResponse.setStatus(HttpStatus.NOT_FOUND.value());
+        errorResponse.setLocalDateTime(LocalDateTime.now());
+        
+        return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(errorResponse);
     }
 }

@@ -26,6 +26,7 @@ public class UserService {
         this.authenticationManager = authenticationManager;
     }
 
+    @Transactional
     public void addUserToDatabase(String username, String password) {
         if (username.equals(password)) throw new DuplicateCredentialsException();
         if (userRepository.existsByUsername(username)) throw new UserAlreadyExistsException(username);
