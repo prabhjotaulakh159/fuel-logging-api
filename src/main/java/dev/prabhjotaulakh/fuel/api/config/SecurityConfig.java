@@ -33,8 +33,9 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        final String UNPROTECTED_URLS = "/public/**";
         http
-            .authorizeHttpRequests(auth -> auth.requestMatchers("/public/**")
+            .authorizeHttpRequests(auth -> auth.requestMatchers(UNPROTECTED_URLS)
                                                .permitAll()
                                                .anyRequest()
                                                .authenticated())
