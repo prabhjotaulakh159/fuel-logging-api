@@ -1,6 +1,7 @@
 package dev.prabhjotaulakh.fuel.api.services;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -32,28 +33,21 @@ public class LogService {
     @Transactional
     public LogResponse createLog(LogRequest request, Sheet sheet) {
         Country country = checkIfCountryExists(request.getCountry());
-        var maybeLocation = locationRepository.findByCountryAndStateAndPostalCodeAndDoorNumber(
-            country, request.getState(), request.getPostalCode(), request.getDoorNumber());
+        var maybeLocation = getPossibleLocation(country, request);
+        
         Location location;
         if (maybeLocation.isEmpty()) {
-            location = new Location();
-            location.setCountry(country);
-            location.setState(request.getState().toUpperCase());
-            location.setDoorNumber(request.getDoorNumber());
-            location.setPostalCode(request.getPostalCode().toUpperCase());
-            location.setLogs(new ArrayList<>());
+            location = createLocation(request, country);
             locationRepository.save(location);
         } else {
             location = maybeLocation.get();
         }
-        var log = new Log();
-        log.setSheet(sheet);
-        log.setFuelAmount(request.getFuelAmount());
-        log.setFuelCost(request.getFuelCost());
-        log.setLocalDateTime(request.getLocalDateTime());
-        log.setLocation(location);
+
+        var log = createLog(request, sheet, location);
         logRepository.save(log);
+        
         var locationResponse = modelMapper.map(location, LocationResponse.class);
+        
         var logResponse = new LogResponse();
         logResponse.setLogId(log.getLogId());
         logResponse.setFuelAmount(log.getFuelAmount());
@@ -61,6 +55,31 @@ public class LogService {
         logResponse.setLocalDateTime(log.getLocalDateTime());
         logResponse.setLocation(locationResponse);
         return logResponse;        
+    }
+
+    private Log createLog(LogRequest request, Sheet sheet, Location location) {
+        var log = new Log();
+        log.setSheet(sheet);
+        log.setFuelAmount(request.getFuelAmount());
+        log.setFuelCost(request.getFuelCost());
+        log.setLocalDateTime(request.getLocalDateTime());
+        log.setLocation(location);
+        return log;
+    }
+
+    private Location createLocation(LogRequest request, Country country) {
+        Location location = new Location();
+        location.setCountry(country);
+        location.setState(request.getState().toUpperCase());
+        location.setDoorNumber(request.getDoorNumber());
+        location.setPostalCode(request.getPostalCode().toUpperCase());
+        location.setLogs(new ArrayList<>());
+        return location;
+    }
+
+    private Optional<Location> getPossibleLocation(Country country, LogRequest request) {
+        return locationRepository.findByCountryAndStateAndPostalCodeAndDoorNumber(
+            country, request.getState(), request.getPostalCode(), request.getDoorNumber());
     }
 
     private Country checkIfCountryExists(String country) {
