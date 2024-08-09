@@ -88,4 +88,12 @@ public class Location {
     public void setDoorNumber(Integer doorNumber) {
         this.doorNumber = doorNumber;
     }
+
+    public List<Log> getLogs() {
+        return logs;
+    }
+
+    public void setLogs(List<Log> logs) {
+        this.logs = logs;
+    }
 }
