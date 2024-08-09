@@ -8,6 +8,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import dev.prabhjotaulakh.fuel.api.data.SheetRequest;
 import dev.prabhjotaulakh.fuel.api.data.SheetResponse;
 import dev.prabhjotaulakh.fuel.api.exceptions.ResourceNotOwnedByUserException;
 import dev.prabhjotaulakh.fuel.api.exceptions.SheetAlreadyExistsForUsernameException;
@@ -108,5 +109,32 @@ public class SheetService {
         }
 
         sheetRepository.deleteById(sheet.get().getSheetId());
+    }
+
+    @Transactional
+    public void changeSheetName(Integer sheetId, SheetRequest request) {
+        var sheet = sheetRepository.findById(sheetId);
+        if (sheet.isEmpty()) {
+            throw new SheetNotFoundException();
+        }
+
+        var user = userRepository.findByUsername(SecurityService.getCurrentlyLoggedInUsername());
+        if (user.isEmpty()) {
+            throw new UsernameNotFoundException("User not found");
+        }
+
+        if (sheet.get().getUser().getUserId() != user.get().getUserId()) {
+            throw new ResourceNotOwnedByUserException();
+        }
+
+        if (sheetRepository.existsBySheetNameAndUsername(request.getSheetName(), user.get().getUsername())) {
+            throw new SheetAlreadyExistsForUsernameException(request.getSheetName(), user.get().getUsername());
+        }
+
+        if (sheet.get().getSheetName().equals(request.getSheetName()))  {
+            return;
+        }
+
+        sheet.get().setSheetName(request.getSheetName());
     }
 }
