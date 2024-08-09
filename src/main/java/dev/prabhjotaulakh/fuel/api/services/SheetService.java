@@ -32,7 +32,7 @@ public class SheetService {
     @Transactional
     public SheetResponse addSheet(String sheetName) {
         var user = securityService.getAuthenticatedUser();
-        checkIfAlreadyHasSameSheet(sheetName, user.getUsername());
+        checkIfAlreadyHasSameSheet(sheetName, user);
         var sheet = new Sheet();
         sheet.setSheetName(sheetName);
         sheet.setLogs(new ArrayList<>());
@@ -73,7 +73,7 @@ public class SheetService {
         var sheet = getValidSheet(sheetId);
         var user = securityService.getAuthenticatedUser();
         checkIfSheetBelongsToUser(sheet, user);
-        checkIfAlreadyHasSameSheet(sheet.getSheetName(), user.getUsername());
+        checkIfAlreadyHasSameSheet(sheet.getSheetName(), user);
         if (sheet.getSheetName().equals(request.getSheetName()))  {
             return;
         }
@@ -94,9 +94,9 @@ public class SheetService {
         }
     }
 
-    private void checkIfAlreadyHasSameSheet(String sheetName, String username) {
-        if (sheetRepository.existsBySheetNameAndUsername(sheetName, username)) {
-            throw new SheetAlreadyExistsForUsernameException(sheetName, username);
+    private void checkIfAlreadyHasSameSheet(String sheetName, User user) {
+        if (sheetRepository.existsBySheetNameAndUserId(sheetName, user.getUserId())) {
+            throw new SheetAlreadyExistsForUsernameException(sheetName, user.getUsername());
         }
     }
 }

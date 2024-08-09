@@ -16,9 +16,9 @@ public interface SheetRepository extends JpaRepository<Sheet, Integer> {
     "SELECT COUNT(*) > 0 " +
     "FROM sheets " +
     "INNER JOIN users ON sheets.user_id = users.user_id " +
-    "WHERE users.username = :username AND sheets.sheet_name = :sheet_name", 
+    "WHERE users.user_id = :user_id AND sheets.sheet_name = :sheet_name", 
     nativeQuery = true)
-    boolean existsBySheetNameAndUsername(@Param("sheet_name")String sheetName, @Param("username")String username);
+    boolean existsBySheetNameAndUserId(@Param("sheet_name")String sheetName, @Param("user_id")Integer userId);
 
     @Query(value = 
     "SELECT sheets.* FROM sheets INNER JOIN users ON sheets.user_id = users.user_id " + 
