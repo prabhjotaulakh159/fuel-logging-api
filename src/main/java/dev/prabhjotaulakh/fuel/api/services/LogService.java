@@ -84,6 +84,38 @@ public class LogService {
         return logResponse;
     }
 
+    @Transactional
+    public void deleteLog(Integer logId) {
+        var maybeLog = logRepository.findById(logId);
+        if (maybeLog.isEmpty()) {
+            throw new LogNotFoundException();
+        }
+        logRepository.deleteById(maybeLog.get().getLogId());
+    }
+
+    @Transactional
+    public void updateLog(Integer logId, LogRequest logRequest) {
+        var maybeLog = logRepository.findById(logId);
+        if (maybeLog.isEmpty()) {
+            throw new LogNotFoundException();
+        }
+        var log = maybeLog.get();
+        Country country = checkIfCountryExists(logRequest.getCountry());
+        var maybeLocation = getPossibleLocation(country, logRequest);
+        Location location;
+        if (maybeLocation.isEmpty()) {
+            location = createLocation(logRequest, country);
+            locationRepository.save(location);
+        } else {
+            location = maybeLocation.get();
+        }
+        log.setFuelAmount(logRequest.getFuelAmount());
+        log.setFuelCost(logRequest.getFuelCost());
+        log.setLocation(location);
+        log.setLocalDateTime(logRequest.getLocalDateTime());
+        logRepository.save(log);
+    }
+
     private Log createLog(LogRequest request, Sheet sheet, Location location) {
         var log = new Log();
         log.setSheet(sheet);
