@@ -1,5 +1,7 @@
 package dev.prabhjotaulakh.fuel.api.controllers;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,9 +31,14 @@ public class LogController {
         return ResponseEntity.ok().body(logService.createLog(request, sheet));
     }
 
-    // TODO
+    @GetMapping("/private/log/all/{sheetId}")
+    public ResponseEntity<List<LogResponse>> getLogsForSheet(@PathVariable Integer sheetId) {
+        var sheet = sheetService.getValidSheet(sheetId);
+        return ResponseEntity.ok().body(logService.getLogsForAsheet(sheet));
+    }
+
     @GetMapping("/private/log/{logId}")
     public ResponseEntity<LogResponse> getSheetById(@PathVariable Integer logId) {
-        throw new UnsupportedOperationException();
+        return ResponseEntity.ok().body(logService.getLogById(logId));
     }
 }

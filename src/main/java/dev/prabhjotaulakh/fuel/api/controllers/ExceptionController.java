@@ -17,6 +17,7 @@ import dev.prabhjotaulakh.fuel.api.data.ValidationErrorResponse;
 import dev.prabhjotaulakh.fuel.api.exceptions.DuplicateCredentialsException;
 import dev.prabhjotaulakh.fuel.api.exceptions.InvalidCountryException;
 import dev.prabhjotaulakh.fuel.api.exceptions.JwtException;
+import dev.prabhjotaulakh.fuel.api.exceptions.LogNotFoundException;
 import dev.prabhjotaulakh.fuel.api.exceptions.ResourceNotOwnedByUserException;
 import dev.prabhjotaulakh.fuel.api.exceptions.SheetAlreadyExistsForUsernameException;
 import dev.prabhjotaulakh.fuel.api.exceptions.SheetNotFoundException;
@@ -87,6 +88,12 @@ public class ExceptionController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponse> handleInvalidCountry(InvalidCountryException e) {
         return badRequest(e.getMessage());
+    }
+
+    @ExceptionHandler(LogNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ErrorResponse> handleLogNotFound(LogNotFoundException e) {
+        return notFound(e.getMessage());
     }
 
     private ResponseEntity<ErrorResponse> badRequest(String message) {

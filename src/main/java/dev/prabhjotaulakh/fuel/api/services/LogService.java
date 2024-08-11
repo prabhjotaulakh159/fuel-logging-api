@@ -1,7 +1,9 @@
 package dev.prabhjotaulakh.fuel.api.services;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -10,6 +12,7 @@ import dev.prabhjotaulakh.fuel.api.data.LocationResponse;
 import dev.prabhjotaulakh.fuel.api.data.LogRequest;
 import dev.prabhjotaulakh.fuel.api.data.LogResponse;
 import dev.prabhjotaulakh.fuel.api.exceptions.InvalidCountryException;
+import dev.prabhjotaulakh.fuel.api.exceptions.LogNotFoundException;
 import dev.prabhjotaulakh.fuel.api.models.Country;
 import dev.prabhjotaulakh.fuel.api.models.Location;
 import dev.prabhjotaulakh.fuel.api.models.Log;
@@ -54,7 +57,31 @@ public class LogService {
         logResponse.setFuelCost(log.getFuelCost());
         logResponse.setLocalDateTime(log.getLocalDateTime());
         logResponse.setLocation(locationResponse);
+
         return logResponse;        
+    }
+
+    public List<LogResponse> getLogsForAsheet(Sheet sheet) {
+        var logs = sheet.getLogs();
+        var logResponseList = logs.stream()
+            .map(log -> modelMapper.map(log, LogResponse.class))
+            .collect(Collectors.toList());
+        return logResponseList;
+    }
+
+    public LogResponse getLogById(Integer logId) {
+        var maybeLog = logRepository.findById(logId);
+        if (maybeLog.isEmpty()) {
+            throw new LogNotFoundException();
+        }
+        var log = maybeLog.get();
+        var logResponse = new LogResponse();
+        logResponse.setLogId(log.getLogId());
+        logResponse.setFuelAmount(log.getFuelAmount());
+        logResponse.setFuelCost(log.getFuelCost());
+        logResponse.setLocalDateTime(log.getLocalDateTime());
+        logResponse.setLocation(modelMapper.map(log.getLocation(), LocationResponse.class));
+        return logResponse;
     }
 
     private Log createLog(LogRequest request, Sheet sheet, Location location) {
