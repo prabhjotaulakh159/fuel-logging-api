@@ -73,11 +73,10 @@ public class SheetService {
         var sheet = getValidSheet(sheetId);
         var user = securityService.getAuthenticatedUser();
         checkIfSheetBelongsToUser(sheet, user);
-        checkIfAlreadyHasSameSheet(sheet.getSheetName(), user);
-        if (sheet.getSheetName().equals(request.getSheetName()))  {
-            return;
+        if (!sheet.getSheetName().equals(request.getSheetName())) {
+            checkIfAlreadyHasSameSheet(request.getSheetName(), user);
+            sheet.setSheetName(request.getSheetName());
         }
-        sheet.setSheetName(request.getSheetName());
     }
 
     public Sheet getValidSheet(Integer sheetId) {
