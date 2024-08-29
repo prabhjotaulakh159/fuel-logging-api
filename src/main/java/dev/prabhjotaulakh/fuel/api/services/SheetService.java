@@ -70,13 +70,11 @@ public class SheetService {
 
     @Transactional
     public void changeSheetName(Integer sheetId, SheetRequest request) {
-        var sheet = getValidSheet(sheetId);
         var user = securityService.getAuthenticatedUser();
+        checkIfAlreadyHasSameSheet(request.getSheetName(), user);
+        var sheet = getValidSheet(sheetId);
         checkIfSheetBelongsToUser(sheet, user);
-        if (!sheet.getSheetName().equals(request.getSheetName())) {
-            checkIfAlreadyHasSameSheet(request.getSheetName(), user);
-            sheet.setSheetName(request.getSheetName());
-        }
+        sheet.setSheetName(request.getSheetName());
     }
 
     public Sheet getValidSheet(Integer sheetId) {
