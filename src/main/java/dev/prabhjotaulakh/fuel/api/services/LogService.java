@@ -94,7 +94,7 @@ public class LogService {
     }
 
     @Transactional
-    public void updateLog(Integer logId, LogRequest logRequest) {
+    public LogResponse updateLog(Integer logId, LogRequest logRequest) {
         var maybeLog = logRepository.findById(logId);
         if (maybeLog.isEmpty()) {
             throw new LogNotFoundException();
@@ -114,6 +114,17 @@ public class LogService {
         log.setLocation(location);
         log.setLocalDateTime(logRequest.getLocalDateTime());
         logRepository.save(log);
+
+        var locationResponse = modelMapper.map(location, LocationResponse.class);
+        var logResponse = new LogResponse();
+        logResponse.setLogId(log.getLogId());
+        logResponse.setFuelAmount(log.getFuelAmount());
+        logResponse.setFuelCost(log.getFuelCost());
+        logResponse.setLocalDateTime(log.getLocalDateTime());
+        logResponse.setLocation(locationResponse);
+
+        return logResponse;        
+
     }
 
     private Log createLog(LogRequest request, Sheet sheet, Location location) {

@@ -47,9 +47,9 @@ public class LogController {
     }
 
     @PatchMapping("/private/log/update/{logId}")
-    public ResponseEntity<Void> updateLog(@PathVariable Integer logId, @RequestBody @Valid LogRequest request) {
-        logService.updateLog(logId, request);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<LogResponse> updateLog(@PathVariable Integer logId, @RequestBody @Valid LogRequest request) {
+        var response = logService.updateLog(logId, request);
+        return ResponseEntity.ok().body(response);
     }
 
     @DeleteMapping("/private/log/delete/{logId}")
