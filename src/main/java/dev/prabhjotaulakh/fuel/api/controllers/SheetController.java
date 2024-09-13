@@ -18,7 +18,7 @@ import dev.prabhjotaulakh.fuel.api.services.SheetService;
 import jakarta.validation.Valid;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://fuel-logging-api-client-production.up.railway.app")
 public class SheetController {
     private final SheetService sheetService;
 
